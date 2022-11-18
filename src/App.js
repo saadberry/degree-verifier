@@ -1,8 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
+import * as IPFS from 'ipfs-core'
 
-function App() {
+
+ function App() {
+
+  async function test(){
+    const ipfs = await IPFS.create()
+    const { cid } = await ipfs.add('Hello world')
+    console.info(cid)
+   
+  }
+  test();
   return (
+
+// QmXXY5ZxbtuYj6DnfApLiGstzPN7fvSyigrRee3hDWPCaf
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
