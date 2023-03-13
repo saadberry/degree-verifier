@@ -1,0 +1,3 @@
+-> make "addRecord" a protected route
+-> apply styling to ^
+-> add template functionality
