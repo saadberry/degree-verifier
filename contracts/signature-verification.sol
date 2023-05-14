@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  struct Details {
         string student_id;
         address student_add;
-        bool isVerified;
+        bool isVerified; 
+        string ipfsHash; // stores hash returned by ipfs
     }
 contract signature is Ownable {
    
@@ -45,11 +46,13 @@ contract signature is Ownable {
         address signer,
         string memory std_id,
         address std_add,
-        bytes memory sign
+        bytes memory sign,
+        string memory ipfsHash
     ) public   returns (bool) {
         bytes32 message_hash = GetHash(std_id, std_add);
         bytes32 ethsignedhash = getEthHash(message_hash);
         stud.isVerified = recover(ethsignedhash, sign) == signer;
+        stud.ipfsHash = ipfsHash;
         studentsmapping[std_add]=stud;
         student.push(stud);
         emit log(std_id, sign ,stud.isVerified);
