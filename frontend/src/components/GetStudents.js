@@ -1,48 +1,76 @@
-// for each loop for each name, sabki link banao, http://localhost/user:/id
-// something like this: 
-//foeach(
-/* <div>
-<a url = "localhost/user/{id}>
-</div>) */
+import React from 'react';
+import axios from 'axios';
+import { makeStyles } from '@material-ui/core/styles';
+import { Typography, Paper, Link } from '@material-ui/core';
 
-import react from 'react'
-import axios from 'axios'
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    margin: theme.spacing(2),
+    padding: theme.spacing(2),
+  },
+  header: {
+    marginBottom: theme.spacing(1),
+  },
+  userContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    padding: theme.spacing(2),
+    boxShadow: '0px 0px 5px 0px rgba(0,0,0,0.2)',
+    borderRadius: '5px',
+  },
+  link: {
+    marginTop: theme.spacing(1),
+  },
+}));
 
 function GetStudents() {
-  const [users, setUsers] = react.useState([])
+  const classes = useStyles();
+  const [users, setUsers] = React.useState([]);
 
-  react.useEffect(() => {
+  React.useEffect(() => {
     async function fetchUsers() {
-      const response = axios.get('http://localhost:8000/users')
-      .then(function (response) {
-        // console.log(response)
-        // console.log(response.data);
-        setUsers(response.data)
-      })
-      .catch(function (error) {
+      try {
+        const response = await axios.get('http://localhost:8000/users');
+        setUsers(response.data);
+      } catch (error) {
         console.log(error);
-      });
-      
-      
+      }
     }
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
 
   return (
-    <div>
-      {users.map(user => (
-        <div key={user._id}>
-          <h2>{user.name} {user.LastName}</h2>
-          <p>Student ID: {user.rollnumber}</p>
-          <p>Email: {user.email}</p>
-          <p>Batch: {user.batch}</p>
-          
-          <p>Degree Verified: {user.isVerified}</p>
-          <p>Degree link: {user.url}</p>
-        </div>
+    <div className={classes.root}>
+      <Typography variant="h4" className={classes.header}>
+        Student List
+      </Typography>
+      {users.map((user) => (
+        <Paper className={classes.userContainer} key={user._id}>
+          <Typography variant="h4" component="h4" style={{ fontWeight: 'bold' }}>
+            {user.name} {user.LastName}
+          </Typography>
+          <Typography variant="body1">Student ID: {user.rollnumber}</Typography>
+          <Typography variant="body1">Email: {user.email}</Typography>
+          <Typography variant="body1">Batch: {user.batch}</Typography>
+          <Typography variant="body1">Degree Verified: {user.isVerified ? "True" : "False"} </Typography>
+          <Typography variant="body1" className={classes.link}>
+            Degree link:{' '}
+            {user.url ? (
+              <Link href={user.url}>{user.url}</Link>
+            ) : (
+              'Degree not uploaded yet'
+            )}
+          </Typography>
+        </Paper>
       ))}
     </div>
-  )
+  );
 }
 
-export default GetStudents
+export default GetStudents;

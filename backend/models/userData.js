@@ -8,42 +8,42 @@ const users_schema1 = new mongoose.Schema({
   },
   LastName: {
     type: String,
-    required: true,
+    required: false,
     lowercase:true
   },
   gender: {
     type: String,
     enum: ['male', 'female'],
     default: 'male',
-    required: true
+    required: false
   },
   cnic: {
     type: String,
-    required: true,
+    required: false,
     minlength: 13, 
     maxlength: 15,
     match: /^[0-9]{5}-[0-9]{7}-[0-9]{1}$/  
   },
   email: {
     type: String,
-    required: true,
+    required: false,
     unique:true
   },
   PhoneNumber: {
     type: Number,
-    required: true,
+    required: false,
     unique:true
     
   },
   nationality: {
     type: String,
-    required: true,
+    required: false,
     minlength: 3,
     maxlength: 20
   },
   address: {
     type: String,
-    required: true
+    required: false
   },
   rollnumber: {
     type: String,
@@ -52,7 +52,7 @@ const users_schema1 = new mongoose.Schema({
   },
   campus: {
     type: String,
-    required: true
+    required: false
   },
   Credentials: {
     type: Number,
@@ -70,7 +70,7 @@ const users_schema1 = new mongoose.Schema({
   },
   batch: {
     type: Number,
-    required: true,
+    required: false,
     // validate: {
     //   validator: function(v) {
     //     const currentYear = new Date().getFullYear();

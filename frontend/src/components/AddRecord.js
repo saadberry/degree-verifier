@@ -1,21 +1,56 @@
-import React from 'react'
+import {React,useState} from 'react'
+import axios from 'axios'
+import fileDownload from 'js-file-download';
 
 export default function AddRecord() {
+  //defining variables
+  const [name,setName] = useState("")
+  const [degreeType,setDegreeType] = useState("")
+  const [program,setProgram] = useState("")
+  const [rollnumber,setRollnumber] = useState("")
+
+  // handleSubmit method
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("handleSubmit caleld")
+    console.log(name,degreeType,program,rollnumber)
+
+    const formData = {
+      name: name,
+      degree: degreeType,
+      program: program,
+      rollnumber: rollnumber,
+      // cnic:cnic,
+      // address:address,
+      // batch:batch,
+    };
+    const registerResponse = await axios.post('http://localhost:8000/register', formData);
+
+    let response = await axios.post("http://localhost:8000/generatePDF", { username: name, degree: degreeType, program, rollnumber:rollnumber}, {
+        responseType: 'blob'
+    });
+    console.log(response.data);
+    var fileName = rollnumber + ".pdf"
+    fileDownload(response.data, fileName)
+    // e.preventDefault();
+}
+
+
   return (
     <>
 
 <section className='form'>
-<form action="http://localhost:8000/register" method="post">
+<form action="http://localhost:8000/register" method="post" onSubmit={handleSubmit}>
 <h2>Registration</h2>
 <div className="form-group">
     <div class="input-box">
-      <label for="name">First Name</label>
-        <input type="text" placeholder="Enter First Name" name="name" required=""/>
+      <label for="name">Full Name</label>
+        <input type="text" placeholder="Enter First Name" name="name" required="" onChange={(e) => setName(e.target.value)}/>
     </div>
-    <div class="input-box">
+    {/* <div class="input-box">
       <label for="LastName">Last Name</label>
         <input type="text" placeholder="Enter Last Name" name="LastName" required=""/>
-    </div>
+    </div> */}
     <label for="gender-title">Gender</label>
   <div class="gender-category">
     <label for="male">
@@ -27,7 +62,7 @@ export default function AddRecord() {
 
     <div class="input-box">
       <label for="cnic">CNIC</label>
-        <input type="text" placeholder="CNIC i.e 12345-1234563-2" name="cnic" pattern="^\d{5}-\d{7}-\d{1}$" required=""/>
+        <input type="text" placeholder="CNIC i.e 12345-1234563-2" name="cnic" pattern="^\d{5}-\d{7}-\d{1}$" />
     </div>
     <div class="input-box">
       <label for="email">Email</label>
@@ -35,7 +70,7 @@ export default function AddRecord() {
     </div>
     <div class="input-box">
       <label for="PhoneNumber">Phone No.</label>
-        <input type="tel" placeholder="PhoneNo. i.e 0300-0000000" name="PhoneNumber" pattern="[0-9]{11}" required=""/>
+        <input type="tel" placeholder="PhoneNo. i.e 03000000000" name="PhoneNumber" pattern="[0-9]{11}" required=""/>
     </div>
 
     <div class="input-box">
@@ -49,7 +84,7 @@ export default function AddRecord() {
     </div>
     <div class="input-box">
         <label for="rollnumber">Roll Number:</label>
-        <input type="text" placeholder="Roll Number i.e (17k-1234)" name="rollnumber" pattern="^\d{2}[Kk]-\d{4}$" required=""/>
+        <input type="text" placeholder="Roll Number i.e (17k-1234)" name="rollnumber" pattern="^\d{2}[Kk]-\d{4}$" required="" onChange={(e) => setRollnumber(e.target.value)}/>
     </div>
 
     <div class="input-box">
@@ -87,7 +122,7 @@ export default function AddRecord() {
 
         <div class="input-box">
           <label for="degree">Degree Type</label>
-          <select id="degree" name="degree" required="">
+          <select id="degree" name="degree" required="" onChange={(e) => setDegreeType(e.target.value)}>
              <option value="" disabled="" selected="">Select your degree</option>
              <option value="BS">BS</option>
              <option value="MS">MS</option>
@@ -95,7 +130,7 @@ export default function AddRecord() {
         </div>
         <div class="input-box">
           <label for="major">Major</label>
-          <select id="major" name="major" required="">
+          <select id="major" name="program" value={program} required="" onChange={(e) => setProgram(e.target.value)}>
              <option value="" disabled="" selected="">Select your major</option>
              <option value="Computer Science">Computer Science</option>
              <option value="cyber security">Cyber security</option>
@@ -132,7 +167,7 @@ export default function AddRecord() {
       </script> */}
     </div>
     <div class="button-container">
-      <button type="Submit" className='btn btn-block'>Register</button>
+      <button type="Submit" className='btn btn-block' onSubmit={handleSubmit}>Register</button>
 
     </div>
   </div>

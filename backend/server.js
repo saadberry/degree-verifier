@@ -6,10 +6,13 @@ const path = require('path');
 const mongoose = require('mongoose')
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
+const { degrees, PDFDocument, rgb, StandardFonts } = require('pdf-lib');
+const { readFileSync, writeFileSync, unlinkSync } = require("fs")
 // require('./userdatabase/mongoose_connection')
 
 
 const app = express();
+app.use(express.json());
 
 app.use(cors({
   origin: 'http://localhost:3000'
@@ -51,7 +54,7 @@ app.post("/register",async (req,res)=>{
     console.log(req.body);
     let req_userdata =new users_collection1(req.body);
     console.log(req_userdata);
-    
+    // res.send("hehe")
     try {
       await req_userdata.save();
       res.send('Registered successfully!');
@@ -96,6 +99,82 @@ app.post("/verify", async (req, res) => {
     console.log(error);
     res.status(500).json({ error: 'An error occurred' });
   }
+})
+
+//generating degree
+app.post("/generatePDF", async (req, res) => {
+  try {
+      const { username, degree, program,rollnumber } = req.body;
+      let deg = "";
+      if (degree.toLowerCase() === "bs") {
+          deg = `BACHELORS OF SCIENCE (${program})`
+      } else if (degree.toLowerCase() === "ms") {
+          deg = `MASTERS OF SCIENCE (${program})` 
+      }
+      if (deg.length === 0) {
+          res.json("Invalid degree entered!")
+          return;
+      }
+      const document = await PDFDocument.load(readFileSync("./Certificate.pdf"));
+      const pages = document.getPages();
+      const firstPage = pages[0];
+      // const fontBytes = readFileSync("./Sanchez-Regular.ttf")
+      // Draw a string of text diagonally across the first page
+      // const SanChezFont = await document.embedFont(StandardFonts);
+      firstPage.drawText(username, {
+          x: 250,
+          y: 270,
+          size: 40,
+          // font: SanChezFont,
+          color: rgb(0.0, 0.0, 0.0),
+      });
+      firstPage.drawText(deg, {
+          x: 225,
+          y: 200,
+          size: 18,
+          // font: SanChezFont,
+          color: rgb(0.0, 0.0, 0.0),
+      });
+      const pdfBytes = await document.save()
+      // var file = "./" + rollnumber +".pdf"
+      file = rollnumber
+      const filename1 = `./${file}.pdf`
+      const filename2 = `/${file}.pdf`
+      console.log(filename1)
+      
+      writeFileSync(filename1, pdfBytes)
+      res.download(__dirname + filename2);
+  } catch (err) {
+      console.log(err)
+      res.json(err.msg);
+  }
+})
+
+//check status of degree
+app.post("/check-status", async (req, res) => {
+  var rollnumber = req.body.student_id
+  console.log(rollnumber)
+  try{
+  const user = await users_collection1.findOne({ rollnumber });
+  
+  if (!user) {
+    res.status=404
+    return res.send("Oops! Seems like your record doesn't exist!");
+  }
+
+  if (user.isVerified) {
+    return res.send("Congratulations, your degree is verified");
+  } else if( !user.isVerified) {
+    return res.send("Your degree verification is pending");
+  }
+  else{
+    return res.send("Oops! Seems like your record doesn't exist!");
+  }
+} catch (err) {
+  console.error(err);
+  return res.status(500).send("An error occurred");
+}
+
 })
 
 //mongo connection
